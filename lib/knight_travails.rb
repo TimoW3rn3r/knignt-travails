@@ -23,15 +23,6 @@ class Square
   end
 end
 
-class QueueItem
-  attr_reader :position, :parent
-
-  def initialize(position, parent = nil)
-    @position = position
-    @parent = parent
-  end
-end
-
 class KnightMoves
   include Constants
 
@@ -47,7 +38,7 @@ class KnightMoves
 
   def shortest_path
     puts "\nFind path for: #{start_position} -> #{end_position}"
-    queue << QueueItem.new(start_position)
+    queue << Square.new(start_position)
     moves = find.serial_path
     puts "You made it in #{moves.size - 1} moves! Here's your path:"
     moves.each do |move|
@@ -58,23 +49,18 @@ class KnightMoves
   end
 
   def find
-    shifted = queue.shift
-    position = shifted.position
-    parent = shifted.parent
-    square = Square.new(position, parent)
-    return square if position == end_position
+    square = queue.shift
+    return square if square.position == end_position
 
-    parent&.next_moves&.append(square)
-    new_moves = all_moves(position).select { |move| new_move?(move) }
+    new_moves = all_moves(square.position).select { |move| new_move?(move) }
     populate_queue(new_moves, square)
-
     find
   end
 
   def populate_queue(moves, parent)
     moves.each do |move|
       previous_moves << move
-      queue << QueueItem.new(move, parent)
+      queue << Square.new(move, parent)
     end
   end
 
